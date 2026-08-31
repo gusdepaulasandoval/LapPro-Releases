@@ -46,18 +46,24 @@ releases/
 
 ## Como publicar uma nova release
 
-Tudo é gerado automaticamente pelo script `tools/publish_release.py` no
-repositório privado do código-fonte (`LapPro`):
+Tudo é feito por um único comando no repositório privado do código-fonte
+(`LapPro`), via `tools/publish_release.py`:
 
 1. No repo `LapPro`: bump de `FIRMWARE_VERSION`/`FIRMWARE_VERSION_CODE` em
-   `src/version.h`, compile (`pio run -e apex_one_s3`).
-2. `python tools/publish_release.py --changelog "..."` — gera
-   `manifest.json` + calcula o SHA-256/tamanho a partir do `.bin` compilado,
-   deixando tudo pronto em `dist/release/`.
-3. Copie o conteúdo de `dist/release/` para este repositório
-   (sobrescrevendo `manifest.json` da raiz e adicionando a pasta
-   `releases/<versão>/`), depois `git add -A && git commit && git push`.
-4. No repo `LapPro`, marque o commit: `git tag <versão> && git push origin <versão>`.
+   `src/version.h`.
+2. `python tools/publish_release.py --changelog "..."`
+
+   O script builda o firmware, calcula o SHA-256/tamanho, gera o
+   `manifest.json` e então pergunta, um passo de cada vez:
+   - comitar o bump de versão no `LapPro`;
+   - dar push nesse commit;
+   - copiar os arquivos pra este repositório (`LapPro-Releases`) e dar
+     push aqui — usa um clone local salvo depois da primeira vez (ou
+     oferece pra clonar se ainda não existir);
+   - criar e enviar a tag git da versão no `LapPro`.
+
+   No VS Code, dá pra rodar via **Tasks: Run Task → "Release Firmware
+   (build + publica OTA)"**.
 
 Não edite `manifest.json` ou os arquivos em `releases/` manualmente — o
 `sha256` precisa corresponder exatamente ao `.bin` publicado, ou o
